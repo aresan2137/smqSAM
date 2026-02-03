@@ -1,157 +1,66 @@
-﻿#include <iostream>
+#include <iostream>
 
 #include "include.h"
 
+#include "ExternMakers/sam.h"
 
-Config ParseConfig(const std::string& conf) {
-    Config cfg;
+#include "Smf/smf.h"
+#include "img/img.h"
+#include "glsl/glsl.h"
+#include "control/control.h"
+#include "other/BetherCam.h"
 
-    int pos = 0;
-    while (pos < conf.size()) {
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
-        int end = conf.find('\n', pos);
-        if (end == std::string::npos)
-            end = conf.size();
-
-        std::string line = conf.substr(pos, end - pos);
-        pos = end + 1;
-
-        if (line.empty() || line[0] == '#')
-            continue;
-
-        int eq = line.find('=');
-        if (eq == std::string::npos)
-            continue;
-
-        std::string key = line.substr(0, eq);
-        std::string val = line.substr(eq + 1);
-
-        if (key == "glsl_type")
-            cfg.glsl_type = val;
-        else if (key == "glsl_ver")
-            cfg.glsl_ver = std::stoi(val);
-    }
-
-    return cfg;
-}
-
-std::vector<ShaderProgram> ParseShader(const std::string& conf) {
-    std::vector<ShaderProgram> out;
-
-    size_t pos = 0;
-    while (pos < conf.size()) {
-
-        while (pos < conf.size() && std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        if (pos >= conf.size())
-            break;
-
-        if (conf[pos] == '#') {
-            while (pos < conf.size() && conf[pos] != '\n')
-                pos++;
-            continue;
-        }
-
-        size_t name_start = pos;
-        while (pos < conf.size() && !std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        std::string name = conf.substr(name_start, pos - name_start);
-
-        while (pos < conf.size() && std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        size_t vs_start = pos;
-        while (pos < conf.size() && !std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        std::string vs = conf.substr(vs_start, pos - vs_start);
-
-        while (pos < conf.size() && std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        size_t fs_start = pos;
-        while (pos < conf.size() && !std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        std::string fs = conf.substr(fs_start, pos - fs_start);
-
-        if (!vs.empty() && !fs.empty())
-            out.push_back({ name, vs, fs });
-    }
-
-    return out;
-}
-
-std::vector<SmfConf> ParseSmf(const std::string& conf) {
-    std::vector<SmfConf> out;
-
-    size_t pos = 0;
-    while (pos < conf.size()) {
-
-        while (pos < conf.size() && std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        if (pos >= conf.size())
-            break;
-
-        if (conf[pos] == '#') {
-            while (pos < conf.size() && conf[pos] != '\n')
-                pos++;
-            continue;
-        }
-
-        size_t name_start = pos;
-        while (pos < conf.size() && !std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        std::string name = conf.substr(name_start, pos - name_start);
-
-        while (pos < conf.size() && std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        size_t fl_start = pos;
-        while (pos < conf.size() && !std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-        std::string fl = conf.substr(fl_start, pos - fl_start);
-
-        while (pos < conf.size() && std::isspace((unsigned char)conf[pos]))
-            pos++;
-
-
-        if (!fl.empty())
-            out.push_back({ name, fl });
-    }
-
-    return out;
-}
-
-std::string NoniString(const std::string& str) {
-    std::string out = str;
-
-    const std::string ext = ".glsl";
-    if (out.size() >= ext.size() &&
-        out.compare(out.size() - ext.size(), ext.size(), ext) == 0) {
-        out.erase(out.size() - ext.size(), ext.size());
-    }
-
-    for (char& c : out) {
-        if (!std::isalnum(static_cast<unsigned char>(c))) {
-            c = '_';
-        }
-    }
-
-    return out;
-}
+smq::Engine eng(smq::Window({ {1280,720}, "SAM" }));
 
 int main() {
-    Config config = ParseConfig(smq::LoadFile("resources/config.conf"));
-	std::vector<ShaderProgram> shaders = ParseShader(smq::LoadFile("resources/glsl.conf"));
-    std::vector<SmfConf> smf = ParseSmf(smq::LoadFile("resources/smf.conf"));
-    std::vector<SmfConf> image = ParseSmf(smq::LoadFile("resources/img.conf"));
-	MakeCpp(config, shaders, smf, image);
-	MakeH(config, shaders, smf, image);
+
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+    ImGui::SetCurrentContext(eng.GetImGuiContext());
+
+    smq::Scene* scene = new smq::Scene();
+
+    initSam();
+
+    GetMaterial(s_shadow)->AddTexture(GetTexture(t_blocks));
+
+    smq::Renderer* renderer = new smq::DefultRenderer();
+    smq::RenderTexture* render = new smq::RenderTexture({ 1280,720 }, renderer);
+    scene->renderTexture = render;
+    scene->cameras.emplace_back(render, smq::RenderType_Perspective);
+
+    scene->rootObject = new smq::Object();
+    scene->rootObject->AddComponent(new Smf());
+    scene->rootObject->AddComponent(new Img());
+    scene->rootObject->AddComponent(new Glsl());
+    scene->rootObject->AddComponent(new Control());
+    scene->rootObject->AddComponent(new BetherCam(&scene->cameras[0]));
+
+    smq::Object* smf_Previev = new smq::Object();
+    smf_Previev->AddComponent(new smq::comp::Position3D());
+    smf_Previev->AddComponent(new smq::comp::ModelMaterial(nullptr, GetMaterial(s_shadow)));
+    scene->rootObject->AddChild(smf_Previev);
+
+    scene->lights.reserve(1);
+
+    smq::Light r;
+    r.position = { 10.0f, 10.0f, -10.0f, 100.0f };
+    r.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    scene->lights.push_back(r);
+
+    GetMaterial(s_shadow)->UpdateUniform(s_shadow_fs_u_lightCount, (int)scene->lights.size());
+    eng.SetPostProcesingMaterial(GetMaterial(s_post));
+
+    eng.SetScene(scene);
+
+    eng.StartRuntime();
+
+	delete renderer;
+	delete render;
 }
 

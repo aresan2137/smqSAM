@@ -1,0 +1,12 @@
+﻿{
+	"Images": [
+		{
+			"Name": "white",
+			"FilePath": "emp.png"
+		},
+		{
+			"Name": "shelf",
+			"FilePath": "shelf.png"
+		}
+	]
+}

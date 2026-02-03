@@ -2,58 +2,8 @@
 
 
 
-std::vector<Unitform> GetUniforms(std::string src) {
-    std::vector<Unitform> out;
 
-    int i = 0;
-    int n = src.size();
-
-    auto is_ws = [](char c) {
-        return c == ' ' || c == '\t' || c == '\n' || c == '\r';
-        };
-
-    auto is_ident = [](char c) {
-        return (c >= 'a' && c <= 'z') ||
-            (c >= 'A' && c <= 'Z') ||
-            (c >= '0' && c <= '9') ||
-            c == '_';
-        };
-
-    while (i < n) {
-
-        if (i + 7 <= n &&
-            src.compare(i, 7, "uniform") == 0 &&
-            (i == 0 || !is_ident(src[i - 1])) &&
-            (i + 7 == n || is_ws(src[i + 7]))) {
-
-            i += 7;
-
-            while (i < n && is_ws(src[i])) i++;
-            int type_start = i;
-            while (i < n && is_ident(src[i])) i++;
-            std::string type = src.substr(type_start, i - type_start);
-
-            while (i < n && is_ws(src[i])) i++;
-            int name_start = i;
-            while (i < n && is_ident(src[i])) i++;
-            std::string name = src.substr(name_start, i - name_start);
-
-            int br = name.find('[');
-            if (br != std::string::npos)
-                name = name.substr(0, br);
-
-            if (!type.empty() && !name.empty()) {
-                out.push_back({ name, type });
-            }
-        }
-
-        i++;
-    }
-
-    return out;
-}
-
-
+/*
 void MakeH(Config config, std::vector<ShaderProgram> shaders, std::vector<SmfConf> smf, std::vector<SmfConf> image) {
     std::string h = R"(
 #pragma once
@@ -136,5 +86,7 @@ smq::Texture* getTexture(Textures texture);
 
 )";
 
-    smq::SaveFile("resources/sam.h", h);
+    std::string put = config.output + "/sam.h";
+    smq::SaveFile(put, h);
 }
+*/

@@ -1,0 +1,19 @@
+﻿{
+	"Shaders": [
+		{
+			"Name": "basic",
+			"VSFilePath": "Shaders/basic_vs.glsl",
+			"FSFilePath": "Shaders/basic_fs.glsl"
+		},
+		{
+			"Name": "shadow",
+			"VSFilePath": "Shaders/shadow_vs.glsl",
+			"FSFilePath": "Shaders/shadow_fs.glsl"
+		},
+		{
+			"Name": "noPost",
+			"VSFilePath": "Shaders/no_mvp_vs.glsl",
+			"FSFilePath": "Shaders/pass_fs.glsl"
+		}
+	]
+}

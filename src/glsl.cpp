@@ -1,5 +1,7 @@
 ﻿#include "include.h"
 
+/*
+
 std::vector<Unitform> GetUniforms(std::string src);
 std::string UniformToNString(std::string type);
 
@@ -48,14 +50,11 @@ std::string glslComp(Config config, std::vector<ShaderProgram> shaders) {
         h += uniqeShaders[i].type;
         h += ");\n";
     }
-    h += "\nshaders.resize(";
-    h += std::to_string(shaders.size());
-    h += ");\n";
 
     for (int i = 0; i < shaders.size(); i++) {
-        h += "\nshaders[";
+        h += "\nunsigned int shaders";
         h += std::to_string(i);
-        h += "] = Shader(";
+        h += " = Shader(";
         h += NoniString(shaders[i].vs);
         h += ", ";
         h += NoniString(shaders[i].fs);
@@ -68,10 +67,6 @@ std::string glslComp(Config config, std::vector<ShaderProgram> shaders) {
         h += ");";
     }
     h += "\n\n";
-
-    h += "materials.reserve(";
-    h += std::to_string(shaders.size());
-    h += ");\n";
 
     for (int i = 0; i < shaders.size(); i++) {
 
@@ -101,9 +96,9 @@ std::string glslComp(Config config, std::vector<ShaderProgram> shaders) {
             h += shaders[i].name;
             h += "[";
             h += std::to_string(j);
-            h += "] = glGetUniformLocation(shaders[";
+            h += "] = glGetUniformLocation(shaders";
             h += std::to_string(i);
-            h += "],\"";
+            h += ",\"";
             h += vsUni[j].name;
             h += "\");\n";
 
@@ -155,6 +150,10 @@ std::string glslComp(Config config, std::vector<ShaderProgram> shaders) {
                 h += "i4 = {0,0,0,0};\n";
             }
 
+            if (val == "Mat3") {
+                h += "m3 = {0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f};\n";
+            }
+
             if (val == "Mat4") {
                 h += "m4 = {0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f};\n";
             }
@@ -164,9 +163,9 @@ std::string glslComp(Config config, std::vector<ShaderProgram> shaders) {
             h += shaders[i].name;
             h += "[";
             h += std::to_string(vsUni.size() + j);
-            h += "] = glGetUniformLocation(shaders[";
+            h += "] = glGetUniformLocation(shaders";
             h += std::to_string(i);
-            h += "],\"";
+            h += ",\"";
             h += fsUni[j].name;
             h += "\");\n";
 
@@ -225,15 +224,18 @@ std::string glslComp(Config config, std::vector<ShaderProgram> shaders) {
         }
 
 
-        h += "\nmaterials.push_back(smq::Material(shaders[";
+        h += "\nmaterials["; 
         h += std::to_string(i);
-        h += "], ";
-        h += "uniforms_";
+        h += "] = new smq::Material(shaders";
+        h += std::to_string(i);
+        h += ", uniforms_";
         h += shaders[i].name;
         h += ", atributes_";
         h += shaders[i].name;
-        h += "));\n";
+        h += ");\n";
     }
 
     return h;
 }
+
+*/

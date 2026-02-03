@@ -1,34 +1,28 @@
 ﻿#include "include.h"
 
-std::string UniformToNString(std::string type) {
-    if (type == "float")  return "Float";
-    if (type == "vec2")   return "Vec2";
-    if (type == "vec3")   return "Vec3";
-    if (type == "vec4")   return "Vec4";
-
-    if (type == "int")    return "Int";
-    if (type == "ivec2")  return "IVec2";
-    if (type == "ivec3")  return "IVec3";
-    if (type == "ivec4")  return "IVec4";
-
-    if (type == "mat4")   return "Mat4";
-
-    if (type == "sampler2D")
-        return "Int";
-
-	smq::Error("Unknown uniform type: " + type);
-    return "Unknown";
-}
 
 
+/*
 void MakeCpp(Config config, std::vector<ShaderProgram> shaders, std::vector<SmfConf> smf, std::vector<SmfConf> image) {
     std::string h = R"(
-#include "../Smq/Include.h"
+#include "sam.h"
 
-std::vector<unsigned int> shaders;
-std::vector<smq::Material> materials;
-std::vector<smq::Mesh> meshes;
-std::vector<smq::Texture> textures;
+#include <Include.h>
+
+)";
+    h += "smq::Material* materials[";
+    h += std::to_string(shaders.size());
+    h += "];\n";
+
+    h += "smq::Mesh* meshes[";
+    h += std::to_string(smf.size());
+    h += "];\n";
+
+    h += "smq::Texture* textures[";
+    h += std::to_string(image.size());
+    h += "];\n";
+
+    h += R"(
 
 void CompileShaderProgram(unsigned int& program, const char* Code, unsigned int type) {
     program = glCreateShader(type);
@@ -55,37 +49,40 @@ unsigned int Shader(unsigned int vs,unsigned int fs) {
 }
 
 smq::Material* getMaterial(Shaders shader) {
-	return &materials[static_cast<int>(shader)];
+	return materials[static_cast<int>(shader)];
 }
 
 smq::Mesh* getMesh(Meshes mesh) {
-	return &meshes[static_cast<int>(mesh)];
+	return meshes[static_cast<int>(mesh)];
 }
 
 smq::Texture* getTexture(Textures texture) {
-	return &textures[static_cast<int>(texture)];
+	return textures[static_cast<int>(texture)];
 }
 
 void initSam() {
     )";
 
-    std::string glsl = glslComp(config, shaders);
-    h += glsl;
+    //std::string glsl = glslComp(config, shaders);
+    //h += glsl;
     h += "\n";
-    std::string models = smfComp(config, smf);
+    //std::string models = smfComp(config, smf);
 
-    h += models;  
+    //h += models;  
     h += "\n";
 
-    h += "textures.reserve(";
-    h += std::to_string(image.size());
-    h += ");\n";
     for (int i = 0; i < image.size(); i++) {
-        h += "textures.push_back(smq::Texture(\"resources/textures/";
+        h += "textures[";
+        h += std::to_string(i);
+        h += "] = new smq::Texture(\"resources/textures/";
         h += image[i].fl;
-        h += "\"));\n";
+        h += "\");\n";
     }
 
     h += "\n}";
-    smq::SaveFile("resources/sam.cpp", h);
+
+    std::string put = config.output + (std::string)"sam.cpp";
+
+    smq::SaveFile(put, h);
 }
+*/
