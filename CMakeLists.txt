@@ -1,12 +1,15 @@
-﻿cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.24)
 project(Game LANGUAGES CXX)
 
-file(GLOB_RECURSE GAME_SOURCES "src/**.cpp")
-add_executable(Game ${GAME_SOURCES})
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if (MSVC)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-endif()
+
+add_subdirectory(../smqEngine smq_build) 
+
+file(GLOB_RECURSE GAME_SOURCES "src/*.cpp")
+
+add_executable(Game ${GAME_SOURCES})
 
 # assimp
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -16,9 +19,9 @@ set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(libs/assimp)
-
 target_link_libraries(Game PRIVATE assimp)
 
+target_link_libraries(Game PRIVATE smq)
 
 
 add_custom_command(
