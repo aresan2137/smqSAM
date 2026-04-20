@@ -1,2 +1,2 @@
 # smqSAM
-smqSAM is an Asset Manager for smq
+smqSAM is an Asset Manager for smqEngine
